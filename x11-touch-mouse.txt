@@ -1,0 +1,67 @@
+X11-TOUCH-MOUSE(1)
+==================
+
+NAME
+----
+
+     x11-touch-mouse - Interpret a touch display as a two-button mouse
+
+SYNOPSIS
+--------
+     x11-touch-mouse [--grab] /dev/input/eventX
+
+DESCRIPTION
+-----------
+This is a simple utility that transforms touch events into X11 mouse events. 
+It is intended to be used on Kobo eReaders when running X11 in an Alpine
+Linux chroot.
+
+The touch events are translated into X11 mouse events as follows. The mouse 
+pointer is moved to the position of the first contact, and follows the contact
+as it moves on the touch display. The contact also results in a mouse
+button down event. A single-finger touch indicates the left mouse button and
+a two-finger touch indicates the right mouse button. Ending the touch results
+in a button up event.
+
+If the --grab flag is given then x11-touch-mouse keeps an EVIOCGRAB on the
+device. While this grab is active, other processes will not receive events
+from the kernel devices. The grab is released again when x11-touch-mouse quits.
+
+x11-touch-mouse needs to be able to read from the device; in most cases this 
+means it must be run as root.
+
+DIAGNOSTICS
+-----------
+First check if x11-touch-mouse reads the correct device. Start the program
+without any arguments. It will display a list of event devices and you can
+select the correct one by its index. For instance, the touch screen on a 
+Kobo Aura is indicated as 'elan-touch' and has index 1.
+
+If this does not resolve the issue, then use the evtest utility to confirm 
+that the device produces the expected events.
+
+If evtest does not show any events even though the correct device 
+is being used, the device may be grabbed by a process (EVIOCGRAB). 
+
+The following command shows the processes with an open file descriptor on
+the device:
+
+   fuser -v /dev/input/eventX
+
+EXIT CODE
+---------
+x1-touch-mouse returns 1 on error.
+
+SEE ALSO
+--------
+inputattach(1)
+
+AUTHOR
+------
+x11-touch-mouse is based on evtest, written by Vojtech Pavlik <vojtech@suse.cz>.
+It uses the xdotool library, by Jordan Sissel, to generate the X11 mouse events.
+
+This manual page was written by Kintsugi Computer, based on the evtest manual 
+page by Stephen Kitt <steve@sk2.org>, in turn based on that present in the lineakd
+package, for the Debian GNU/Linux system (but may be used by others).
+

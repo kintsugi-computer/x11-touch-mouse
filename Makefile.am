@@ -1,6 +1,7 @@
 
-bin_PROGRAMS = evtest
-man_pages_src = evtest.txt
+bin_PROGRAMS = x11-touch-mouse
+LDADD = -lxdo
+man_pages_src = x11-touch-mouse.txt
 
 EXTRA_DIST = INSTALL
 

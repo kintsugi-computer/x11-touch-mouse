@@ -1,5 +1,5 @@
-AC_PREREQ([2.57])
-AC_INIT(evtest,[1.32], [https://bugzilla.freedesktop.org/enter_bug.cgi?product=evtest], evtest)
+AC_PREREQ([2.72])
+AC_INIT([x11-touch-mouse],[1.0],[],[x11-touch-mouse])
 AM_INIT_AUTOMAKE([foreign dist-bzip2])
 
 AC_CONFIG_HEADERS(config.h)
@@ -22,4 +22,5 @@ if test "x$XMLTO" = "x" || test "x$ASCIIDOC" = "x"; then
 	AC_MSG_WARN([xmlto or asciidoc not found - cannot create man pages without it])
 fi
 
-AC_OUTPUT([Makefile])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
