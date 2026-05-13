@@ -1,19 +1,14 @@
 Summary
 =======
-evtest is a tool to print evdev kernel events. It reads directly from the
-kernel device and prints a device description and the events with the value
-and the symbolic name.
+x11-touch-mouse is a utility to transform touch screen events into simulated
+X11 mouse events. It is intended for use on Kobo eReaders running X11 in an
+Alpine Linux chroot.
 
 Usage:
-   evtest /dev/input/event0
+   x11-touch-mouse /dev/input/event1
 
-Note: in most cases evtest needs to run as root to be able to read the
+x11-touch-mouse needs to run as root to be able to read the
 devices.
 
-For more information, see the evtest(1) man page.
+For more information, see the x11-touch-mouse(1) man page.
 
-
-Development
-==========
-Please send patches to input-tools@lists.freedesktop.org
-http://lists.freedesktop.org/mailman/listinfo/input-tools
