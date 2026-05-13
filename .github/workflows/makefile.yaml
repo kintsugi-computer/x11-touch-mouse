@@ -16,9 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Requirements
-        run: sudo apt install -y autoconf
-
       - name: Prepare
         run: ./autogen.sh
 

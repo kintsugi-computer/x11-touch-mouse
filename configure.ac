@@ -1,4 +1,4 @@
-AC_PREREQ([2.72])
+AC_PREREQ([2.71])
 AC_INIT([x11-touch-mouse],[1.0],[],[x11-touch-mouse])
 AM_INIT_AUTOMAKE([foreign dist-bzip2])
 
