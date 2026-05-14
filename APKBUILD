@@ -1,7 +1,7 @@
 # Contributor: Kintsugi Computer <kintsugi.computer@protonmail.com>
 # Maintainer: Kintsugi Computer <kintsugi.computer@protonmail.com>
 pkgname=x11-touch-mouse
-pkgver=1.0.1
+pkgver=1.1.0
 pkgrel=0
 pkgdesc="Translate Kobo touchscreen events into X11 mouse events"
 url="https://github.com/kintsugi-computer/x11-touch-mouse"

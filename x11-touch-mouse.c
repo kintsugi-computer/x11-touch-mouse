@@ -114,6 +114,9 @@ static const struct query_mode {
 };
 
 static int grab_flag = 0;
+static int turn_flag = 0;
+static int flipx_flag = 0;
+static int flipy_flag = 0;
 static volatile sig_atomic_t stop = 0;
 
 static void interrupt_handler(int sig)
@@ -898,18 +901,17 @@ static int version(void)
 static int usage(void)
 {
     printf("USAGE:\n");
-    printf(" Capture mode:\n");
-    printf("   %s [--grab] /dev/input/eventX\n", program_invocation_short_name);
+    printf("   %s [--grab] [--turn] [--flipx] [--flipy] /dev/input/eventX\n", program_invocation_short_name);
     printf("     --grab  grab the device for exclusive access\n");
+    printf("     --turn  switch x and y-axis, when the coordinates of the touch device and\n");
+    printf("             the screen have a different orientation\n");
+    printf("     --flipx flip the x-axis, when the touch device and the screen have a\n");
+    printf("             different origin for x (left/right)\n");
+    printf("     --flipy flip the y-axis, when the touch device and the screen have a\n");
+    printf("             different origin for y (top/bottom)\n");
+    printf("     /dev/input/eventX\n");
+    printf("             the input device, replace X with the appropriate number");
     printf("\n");
-    printf(" Query mode: (check exit code)\n");
-    printf("   %s --query /dev/input/eventX <type> <value>\n",
-        program_invocation_short_name);
-
-    printf("\n");
-    printf("<type> is one of: EV_KEY, EV_SW, EV_LED, EV_SND\n");
-    printf("<value> can either be a numerical value, or the textual name of the\n");
-    printf("key/switch/LED/sound being queried (e.g. SW_DOCK).\n");
 
     return EXIT_FAILURE;
 }
@@ -1064,9 +1066,6 @@ static int process_events(int fd)
     height = screen->height;
     printf("-- screen:     %d, %d\n", width, height);
 
-    unsigned int turn = 1;
-    unsigned int flipx = 1;
-    unsigned int flipy = 0;
     unsigned int x = 0;
     unsigned int y = 0;
     int mouse_button_up = 0;
@@ -1134,17 +1133,17 @@ static int process_events(int fd)
 
             if ( type == EV_SYN && (code == SYN_MT_REPORT || code == SYN_REPORT) ) {
                 printf("-- received      %d, %d\n", x, y);
-                if (turn) {
+                if (turn_flag) {
                     mouse_y = x;
                     mouse_x = y;
                 } else {
                     mouse_x = x;
                     mouse_y = y;
                 }
-                if (flipx) {
+                if (flipx_flag) {
                     mouse_x = MAX(0, width-mouse_x);
                 } 
-                if (flipy) {
+                if (flipy_flag) {
                     mouse_y = MAX(0, height-mouse_y);
                 } 
 
@@ -1362,6 +1361,9 @@ static int do_query(const char *device, const char *event_type, const char *keyn
 
 static const struct option long_options[] = {
     { "grab", no_argument, &grab_flag, 1 },
+    { "turn", no_argument, &turn_flag, 1 },
+    { "flipx", no_argument, &flipx_flag, 1 },
+    { "flipy", no_argument, &flipy_flag, 1 },
     { "version", no_argument, NULL, MODE_VERSION },
     { 0, },
 };

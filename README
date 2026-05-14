@@ -5,10 +5,19 @@ X11 mouse events. It is intended for use on Kobo eReaders running X11 in an
 Alpine Linux chroot.
 
 Usage:
-   x11-touch-mouse /dev/input/event1
+   x11-touch-mouse [--grab] [--turn] [--flipx] [--flipy] /dev/input/eventX
+     --grab  grab the device for exclusive access
+     --turn  switch x and y-axis, when the coordinates of the touch device and
+             the screen have a different orientation
+     --flipx flip the x-axis, when the touch device and the screen have a
+             different origin for x (left/right)
+     --flipy flip the y-axis, when the touch device and the screen have a
+             different origin for y (top/bottom)
+     /dev/input/eventX
+             the input device, replace X with the appropriate number
 
 x11-touch-mouse needs to run as root to be able to read the
-devices.
+device.
 
 For more information, see the x11-touch-mouse(1) man page.
 
