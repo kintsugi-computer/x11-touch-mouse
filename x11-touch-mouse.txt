@@ -58,7 +58,8 @@ inputattach(1)
 
 AUTHOR
 ------
-x11-touch-mouse is based on evtest, written by Vojtech Pavlik <vojtech@suse.cz>.
+x11-touch-mouse is based on evtest, written by Vojtech Pavlik <vojtech@suse.cz>,
+and took some inspiration from NiMa's xorg-kobo-touch.py script.
 It uses the xdotool library, by Jordan Sissel, to generate the X11 mouse events.
 
 This manual page was written by Kintsugi Computer, based on the evtest manual 

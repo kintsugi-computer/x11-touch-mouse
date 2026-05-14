@@ -95,6 +95,7 @@
 #endif
 
 #define MAX(a,b) (((a)<(b))?(b):(a))
+#define VERBOSE(...) if (verbose_flag) { printf(__VA_ARGS__); }
 
 enum evtest_mode {
     MODE_CAPTURE,
@@ -117,6 +118,7 @@ static int grab_flag = 0;
 static int turn_flag = 0;
 static int flipx_flag = 0;
 static int flipy_flag = 0;
+static int verbose_flag = 0;
 static volatile sig_atomic_t stop = 0;
 
 static void interrupt_handler(int sig)
@@ -901,7 +903,7 @@ static int version(void)
 static int usage(void)
 {
     printf("USAGE:\n");
-    printf("   %s [--grab] [--turn] [--flipx] [--flipy] /dev/input/eventX\n", program_invocation_short_name);
+    printf("   %s [--grab] [--turn] [--flipx] [--flipy] [--verbose] /dev/input/eventX\n", program_invocation_short_name);
     printf("     --grab  grab the device for exclusive access\n");
     printf("     --turn  switch x and y-axis, when the coordinates of the touch device and\n");
     printf("             the screen have a different orientation\n");
@@ -909,6 +911,7 @@ static int usage(void)
     printf("             different origin for x (left/right)\n");
     printf("     --flipy flip the y-axis, when the touch device and the screen have a\n");
     printf("             different origin for y (top/bottom)\n");
+    printf("     --verbose print debug messages\n");
     printf("     /dev/input/eventX\n");
     printf("             the input device, replace X with the appropriate number");
     printf("\n");
@@ -1064,7 +1067,7 @@ static int process_events(int fd)
     screen = ScreenOfDisplay(xdo->xdpy, 0);
     width = screen->width;
     height = screen->height;
-    printf("-- screen:     %d, %d\n", width, height);
+    VERBOSE("-- screen:     %d, %d\n", width, height);
 
     unsigned int x = 0;
     unsigned int y = 0;
@@ -1132,7 +1135,7 @@ static int process_events(int fd)
             }
 
             if ( type == EV_SYN && (code == SYN_MT_REPORT || code == SYN_REPORT) ) {
-                printf("-- received      %d, %d\n", x, y);
+                VERBOSE("-- received      %d, %d\n", x, y);
                 if (turn_flag) {
                     mouse_y = x;
                     mouse_x = y;
@@ -1148,7 +1151,7 @@ static int process_events(int fd)
                 } 
 
                 xdo_move_mouse(xdo, mouse_x, mouse_y, 0);
-                printf("-- move mouse to %d, %d\n", mouse_x, mouse_y);
+                VERBOSE("-- move mouse to %d, %d\n", mouse_x, mouse_y);
                 if ( mouse_button_down && active_mouse_button == UNKWN_MOUSE_BTN ) {
 
                     event_time.tv_sec = ev[i].input_event_sec;
@@ -1164,12 +1167,12 @@ static int process_events(int fd)
 
                         if ( tracking_id != 0 && within_window ) {
                             active_mouse_button = RIGHT_MOUSE_BTN;
-                            printf("-- mousebutton %d down\n", active_mouse_button);
+                            VERBOSE("-- mousebutton %d down\n", active_mouse_button);
                             xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                             mouse_button_down = 0;
                         } else if ( ! within_window ) {
                             active_mouse_button = LEFT_MOUSE_BTN;
-                            printf("-- mousebutton %d down\n", active_mouse_button);
+                            VERBOSE("-- mousebutton %d down\n", active_mouse_button);
                             xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                             mouse_button_down = 0;
                         }
@@ -1180,11 +1183,11 @@ static int process_events(int fd)
                         // mouse_button_up occured within the touch_window
                         // without a tracking_id != 0 having been observed
                         active_mouse_button = LEFT_MOUSE_BTN;
-                        printf("-- mousebutton %d down\n", active_mouse_button);
+                        VERBOSE("-- mousebutton %d down\n", active_mouse_button);
                         xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                         mouse_button_down = 0;
                     }
-                    printf("-- mousebutton %d up\n", active_mouse_button);
+                    VERBOSE("-- mousebutton %d up\n", active_mouse_button);
                     xdo_mouse_up(xdo, CURRENTWINDOW, active_mouse_button);
                     mouse_button_up = 0;
                     active_mouse_button = UNKWN_MOUSE_BTN;
@@ -1364,6 +1367,7 @@ static const struct option long_options[] = {
     { "turn", no_argument, &turn_flag, 1 },
     { "flipx", no_argument, &flipx_flag, 1 },
     { "flipy", no_argument, &flipy_flag, 1 },
+    { "verbose", no_argument, &verbose_flag, 1 },
     { "version", no_argument, NULL, MODE_VERSION },
     { 0, },
 };
