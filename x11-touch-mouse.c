@@ -94,6 +94,8 @@
 #define input_event_usec time.tv_usec
 #endif
 
+#define MAX(a,b) (((a)<(b))?(b):(a))
+
 enum evtest_mode {
     MODE_CAPTURE,
     MODE_VERSION,
@@ -1049,15 +1051,24 @@ static int process_events(int fd)
     int rc=EXIT_SUCCESS;
     fd_set rdfs;
 
+    unsigned int width, height;
+    Screen *screen;
     xdo_t* xdo;
 
     FD_ZERO(&rdfs);
     FD_SET(fd, &rdfs);
 
     xdo = xdo_new(":0");
+    screen = ScreenOfDisplay(xdo->xdpy, 0);
+    width = screen->width;
+    height = screen->height;
+    printf("-- screen:     %d, %d\n", width, height);
 
-    int x = 0;
-    int y = 0;
+    unsigned int turn = 1;
+    unsigned int flipx = 1;
+    unsigned int flipy = 0;
+    unsigned int x = 0;
+    unsigned int y = 0;
     int mouse_button_up = 0;
     int mouse_button_down = 0;
     int active_mouse_button = 0;
@@ -1086,7 +1097,7 @@ static int process_events(int fd)
         }
 
         for (i = 0; i < rd / sizeof(struct input_event); i++) {
-            unsigned int type, code, within_window;
+            unsigned int type, code, within_window, mouse_x, mouse_y;
 
             type = ev[i].type;
             code = ev[i].code;
@@ -1122,8 +1133,23 @@ static int process_events(int fd)
             }
 
             if ( type == EV_SYN && (code == SYN_MT_REPORT || code == SYN_REPORT) ) {
-                // printf("-- move mouse to %d, %d\n", x, y);
-                xdo_move_mouse(xdo, x, y, 0);
+                printf("-- received      %d, %d\n", x, y);
+                if (turn) {
+                    mouse_y = x;
+                    mouse_x = y;
+                } else {
+                    mouse_x = x;
+                    mouse_y = y;
+                }
+                if (flipx) {
+                    mouse_x = MAX(0, width-mouse_x);
+                } 
+                if (flipy) {
+                    mouse_y = MAX(0, height-mouse_y);
+                } 
+
+                xdo_move_mouse(xdo, mouse_x, mouse_y, 0);
+                printf("-- move mouse to %d, %d\n", mouse_x, mouse_y);
                 if ( mouse_button_down && active_mouse_button == UNKWN_MOUSE_BTN ) {
 
                     event_time.tv_sec = ev[i].input_event_sec;
@@ -1139,12 +1165,12 @@ static int process_events(int fd)
 
                         if ( tracking_id != 0 && within_window ) {
                             active_mouse_button = RIGHT_MOUSE_BTN;
-                            // printf("-- mousebutton %d down\n", active_mouse_button);
+                            printf("-- mousebutton %d down\n", active_mouse_button);
                             xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                             mouse_button_down = 0;
                         } else if ( ! within_window ) {
                             active_mouse_button = LEFT_MOUSE_BTN;
-                            // printf("-- mousebutton %d down\n", active_mouse_button);
+                            printf("-- mousebutton %d down\n", active_mouse_button);
                             xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                             mouse_button_down = 0;
                         }
@@ -1155,11 +1181,11 @@ static int process_events(int fd)
                         // mouse_button_up occured within the touch_window
                         // without a tracking_id != 0 having been observed
                         active_mouse_button = LEFT_MOUSE_BTN;
-                        // printf("-- mousebutton %d down\n", active_mouse_button);
+                        printf("-- mousebutton %d down\n", active_mouse_button);
                         xdo_mouse_down(xdo, CURRENTWINDOW, active_mouse_button);
                         mouse_button_down = 0;
                     }
-                    // printf("-- mousebutton %d up\n", active_mouse_button);
+                    printf("-- mousebutton %d up\n", active_mouse_button);
                     xdo_mouse_up(xdo, CURRENTWINDOW, active_mouse_button);
                     mouse_button_up = 0;
                     active_mouse_button = UNKWN_MOUSE_BTN;
